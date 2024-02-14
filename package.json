@@ -1,0 +1,27 @@
+{
+  "name": "crud-api",
+  "version": "1.0.0",
+  "description": "No description yet",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "start:dev": "ts-node-dev src/app",
+    "start:prod": "tsc && webpack --mode=production && node dist/app.min",
+    "start:multi": "ts-node-dev src/cluster",
+    "test": "jest",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prod": "tsc"
+  },
+  "repository": {
+    "start:dev": "ts-node-dev index",
+    "type": "git",
+    "url": "git+https://github.com/freennnn/crud-api.git"
+  },
+  "author": "apranevich",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/freennnn/crud-api/issues"
+  },
+  "homepage": "https://github.com/freennnn/crud-api#readme"
+}
