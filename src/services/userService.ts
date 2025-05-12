@@ -2,42 +2,60 @@ import { v4 as uuidv4 } from "uuid";
 import { User, UserInput } from "../types/user.js";
 
 class UserService {
-  private users: User[] = [];
+  private users: Map<string, User>;
+  private static instance: UserService;
+
+  public constructor() {
+    this.users = new Map();
+  }
+
+  public static getInstance(): UserService {
+    if (!UserService.instance) {
+      UserService.instance = new UserService();
+    }
+    return UserService.instance;
+  }
 
   getAllUsers(): User[] {
-    return this.users;
+    return Array.from(this.users.values());
   }
 
   getUserById(id: string): User | undefined {
-    return this.users.find((user) => user.id === id);
+    return this.users.get(id);
   }
 
   createUser(userData: UserInput): User {
+    const id = uuidv4();
     const newUser: User = {
-      id: uuidv4(),
+      id,
       ...userData,
     };
-    this.users.push(newUser);
+    this.users.set(id, newUser);
     return newUser;
   }
 
   updateUser(id: string, userData: UserInput): User | undefined {
-    const userIndex = this.users.findIndex((user) => user.id === id);
-    if (userIndex === -1) return undefined;
+    if (!this.users.has(id)) {
+      return undefined;
+    }
 
     const updatedUser: User = {
       id,
-      ...userData,
+      ...userData, // Complete replacement of user data for PUT
     };
-    this.users[userIndex] = updatedUser;
+    this.users.set(id, updatedUser);
     return updatedUser;
   }
 
   deleteUser(id: string): boolean {
-    const initialLength = this.users.length;
-    this.users = this.users.filter((user) => user.id !== id);
-    return initialLength !== this.users.length;
+    return this.users.delete(id);
+  }
+
+  // For testing purposes
+  clear(): void {
+    this.users.clear();
   }
 }
 
-export const userService = new UserService();
+// Export the class directly
+export { UserService };

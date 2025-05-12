@@ -5,18 +5,18 @@
   "main": "src/app.js",
   "type": "module",
   "scripts": {
-    "start:dev": "node --import tsx --watch src/app.ts",
-    "start:prod": "webpack --mode=production && node dist/app.min.js",
-    "start:multi": "ts-node-dev src/cluster",
-    "test": "vitest",
+    "start": "node --experimental-modules dist/server.js",
+    "start:multi": "node --experimental-modules dist/cluster.js",
+    "start:db": "node --experimental-modules dist/db-server.js",
+    "test": "vitest run",
     "test:watch": "vitest watch",
-    "lint": "eslint \"src/**/*.ts\" --fix",
+    "test:cluster": "vitest run src/cluster.test.ts",
+    "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "prod": "tsc",
     "build": "webpack --mode=production"
   },
   "repository": {
-    "start:dev": "ts-node-dev index",
     "type": "git",
     "url": "git+https://github.com/freennnn/crud-api.git"
   },
