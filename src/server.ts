@@ -15,8 +15,8 @@ dotenv.config();
 export default class Server {
   private port: number;
 
-  constructor() {
-    this.port = parseInt(process.env.PORT || "3000", 10);
+  constructor(port?: number) {
+    this.port = port ?? parseInt(process.env.PORT || "3000", 10);
   }
 
   private getBody = async (request: IncomingMessage): Promise<string> => {
