@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename);
 
 export default {
   entry: {
+    app: "./src/app.ts",
     server: "./src/server.ts",
     cluster: "./src/cluster.ts",
     "db-server": "./src/db-server.ts",

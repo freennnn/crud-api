@@ -5,11 +5,10 @@
   "main": "src/app.js",
   "type": "module",
   "scripts": {
-    "start": "node --experimental-modules dist/server.js",
+    "start": "node --experimental-modules dist/app.js",
     "start:multi": "node --experimental-modules dist/cluster.js",
     "start:db": "node --experimental-modules dist/db-server.js",
     "test": "vitest run",
-    "test:watch": "vitest watch",
     "test:cluster": "vitest run src/cluster.test.ts",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",

@@ -11,9 +11,10 @@ export default class Server {
   private port: number;
 
   constructor(port?: number) {
-    this.port =
+    const calculatedPort =
       port ??
       parseInt(process.env.WORKER_PORT || process.env.PORT || "4001", 10);
+    this.port = calculatedPort;
   }
 
   private proxyRequestToDB = (req: IncomingMessage, res: ServerResponse) => {
@@ -78,10 +79,19 @@ export default class Server {
   public start() {
     const server = http.createServer(this.handleRequest.bind(this));
 
+    server.on("error", (error: NodeJS.ErrnoException) => {
+      console.error(
+        `[Worker Server ERROR] Failed to start server on port ${this.port}: ${error.message}`
+      );
+      if (error.code === "EADDRINUSE") {
+        console.error(
+          `[Worker Server ERROR] Port ${this.port} is already in use.`
+        );
+      }
+    });
+
     server.listen(this.port, "0.0.0.0", () => {
-      // console.log(
-      //   `Worker Server started on port ${this.port}, proxying to DB on ${DB_SERVER_PORT}`
-      // );
+      // No debug logs
     });
 
     return server;
