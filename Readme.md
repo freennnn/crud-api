@@ -40,23 +40,43 @@ This application can be run in different modes:
 
 ## Testing
 
-* **Run All Tests:**
+**⚠️ IMPORTANT: The DB server must be running before running tests!**
+
+* **Run API Tests (default):**
 
     ```bash
+    # Terminal 1: Start DB server (REQUIRED)
+    npm run build
+    npm run start:db
+    
+    # Terminal 2: Run API tests (excludes cluster tests)
     npm test
     ```
 
-* **Run Cluster-Specific Tests:**
+* **Run Cluster Tests:**
     These tests specifically target the clustered mode functionality.
 
     ```bash
-    # First, ensure the DB server is running in a separate terminal:
-    # npm run build && npm run start:db
-    # Then, in another terminal, run the cluster tests:
+    # Terminal 1: Ensure the DB server is running
+    npm run build
+    npm run start:db
+    
+    # Terminal 2: Run cluster tests
     npm run test:cluster
     ```
 
     *(Note: The `test:cluster` script automatically starts and stops the main cluster (load balancer + workers) for the test duration, but it does **not** manage the separate DB server.)*
+
+* **Run ALL Tests (API + Cluster):**
+
+    ```bash
+    # Terminal 1: Ensure the DB server is running
+    npm run build
+    npm run start:db
+    
+    # Terminal 2: Run all tests
+    npm run test:all
+    ```
 
 ## API Endpoints
 

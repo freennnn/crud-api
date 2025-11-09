@@ -91,7 +91,7 @@ export default class Server {
     });
 
     server.listen(this.port, "0.0.0.0", () => {
-      // No debug logs
+      console.log(`Server listening on port ${this.port}`);
     });
 
     return server;

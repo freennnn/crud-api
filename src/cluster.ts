@@ -37,9 +37,9 @@ if (cluster.isPrimary) {
   const loadBalancer = http.createServer((req, res) => {
     const url = new URL(req.url || "", `http://${req.headers.host}`);
 
-    // Update worker index for next request (Round-robin)
-    currentWorkerIndex = (currentWorkerIndex + 1) % workers.length;
+    // Round-robin: use current worker, then update for next request
     const workerPort = PORT + currentWorkerIndex + 1;
+    currentWorkerIndex = (currentWorkerIndex + 1) % workers.length;
 
     // Forward the request to the selected worker
     const options = {

@@ -17,6 +17,19 @@ beforeAll(async () => {
       resolve();
     });
   });
+
+  // Clean up database once before all tests
+  try {
+    const users = await makeRequest("GET", "/api/users");
+    if (Array.isArray(users.body)) {
+      for (const user of users.body) {
+        await makeRequest("DELETE", `/api/users/${user.id}`);
+      }
+    }
+  } catch (error) {
+    // Ignore errors if DB server is not running
+    console.warn("Could not clean database. Is DB server running?");
+  }
 });
 
 afterAll(async () => {
@@ -102,5 +115,66 @@ describe("User API", () => {
   it("should return 404 when getting deleted user", async () => {
     const res = await makeRequest("GET", `/api/users/${userId}`);
     expect(res.status).toBe(404);
+  });
+
+  it("should return 400 when creating user with missing fields", async () => {
+    const invalidUser = { username: "Bob" }; // missing age and hobbies
+    const res = await makeRequest("POST", "/api/users", invalidUser);
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error");
+  });
+
+  it("should return 400 when userId is not a valid UUID", async () => {
+    const res = await makeRequest("GET", "/api/users/invalid-uuid-format");
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("message");
+  });
+
+  it("should return 404 for non-existing endpoints", async () => {
+    const res = await makeRequest("GET", "/some-non/existing/resource");
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty("message");
+  });
+
+  it("should return 400 when updating user with invalid UUID", async () => {
+    const userData = { username: "Test", age: 25, hobbies: ["test"] };
+    const res = await makeRequest("PUT", "/api/users/not-a-uuid", userData);
+    expect(res.status).toBe(400);
+  });
+
+  it("should return 400 when deleting user with invalid UUID", async () => {
+    const res = await makeRequest("DELETE", "/api/users/12345");
+    expect(res.status).toBe(400);
+  });
+
+  it("should return 404 when updating non-existent user", async () => {
+    const validUuid = "00000000-0000-0000-0000-000000000000";
+    const userData = { username: "Test", age: 25, hobbies: ["test"] };
+    const res = await makeRequest("PUT", `/api/users/${validUuid}`, userData);
+    expect(res.status).toBe(404);
+  });
+
+  it("should return 404 when deleting non-existent user", async () => {
+    const validUuid = "00000000-0000-0000-0000-000000000000";
+    const res = await makeRequest("DELETE", `/api/users/${validUuid}`);
+    expect(res.status).toBe(404);
+  });
+
+  it("should accept age of 0", async () => {
+    const user = { username: "Baby", age: 0, hobbies: [] };
+    const res = await makeRequest("POST", "/api/users", user);
+    expect(res.status).toBe(201);
+    expect(res.body.age).toBe(0);
+    // Cleanup
+    await makeRequest("DELETE", `/api/users/${res.body.id}`);
+  });
+
+  it("should accept empty hobbies array", async () => {
+    const user = { username: "NoHobbies", age: 20, hobbies: [] };
+    const res = await makeRequest("POST", "/api/users", user);
+    expect(res.status).toBe(201);
+    expect(res.body.hobbies).toEqual([]);
+    // Cleanup
+    await makeRequest("DELETE", `/api/users/${res.body.id}`);
   });
 });

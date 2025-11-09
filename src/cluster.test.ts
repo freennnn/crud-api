@@ -2,8 +2,13 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import http from "node:http";
 import { spawn } from "node:child_process";
 import { setTimeout } from "node:timers/promises";
+import dotenv from "dotenv";
 
-const PORT = 4000;
+// Load .env file
+dotenv.config();
+
+// Use PORT from .env or default to 4000
+const PORT = parseInt(process.env.PORT || "4000", 10);
 
 describe("Cluster Implementation", () => {
   let clusterProcess: ReturnType<typeof spawn>;
@@ -49,25 +54,31 @@ describe("Cluster Implementation", () => {
 
   // Helper to wait for server to be ready
   async function waitForServer(): Promise<void> {
-    const maxAttempts = 10;
+    const maxAttempts = 20; // Increased from 10 to 20
     for (let i = 0; i < maxAttempts; i++) {
       try {
-        await makeRequest("GET", "/api/users");
+        const response = await makeRequest("GET", "/api/users");
+        console.log(`Server ready on attempt ${i + 1}, status: ${response.status}`);
         return;
-      } catch {
+      } catch (error) {
+        console.log(`Attempt ${i + 1}/${maxAttempts} failed:`, error instanceof Error ? error.message : String(error));
         await setTimeout(1000); // Wait 1 second between attempts
       }
     }
-    throw new Error("Server failed to start");
+    throw new Error("Server failed to start after 20 attempts. Is DB server running on port 5005?");
   }
 
   beforeAll(async () => {
-    // Start the cluster
+    // Start the cluster with same PORT as test (from .env)
     clusterProcess = spawn(
       "node",
-      ["--experimental-modules", "dist/cluster.js"],
+      ["dist/cluster.js"],
       {
         stdio: "pipe",
+        env: {
+          ...process.env,
+          PORT: String(PORT), // Ensure cluster uses same PORT as test
+        },
       }
     );
 
@@ -81,7 +92,19 @@ describe("Cluster Implementation", () => {
 
     // Wait for server to be ready
     await waitForServer();
-  }, 30000);
+
+    // Clean up database once before all tests
+    try {
+      const users = await makeRequest("GET", "/api/users");
+      if (Array.isArray(users.body)) {
+        for (const user of users.body) {
+          await makeRequest("DELETE", `/api/users/${user.id}`);
+        }
+      }
+    } catch (error) {
+      console.warn("Could not clean database. Is DB server running?");
+    }
+  }, 40000); // Increased timeout for 20 attempts
 
   afterAll(async () => {
     // Cleanup: kill the cluster process

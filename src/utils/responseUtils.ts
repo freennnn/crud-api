@@ -35,7 +35,7 @@ export const validateUserInput = (
     };
   }
 
-  if (!data.age || typeof data.age !== "number" || data.age < 0) {
+  if (data.age === undefined || data.age === null || typeof data.age !== "number" || data.age < 0) {
     return {
       isValid: false,
       message: "Age is required and must be a positive number",

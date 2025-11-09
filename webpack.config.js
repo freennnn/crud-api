@@ -1,6 +1,5 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import webpack from "webpack";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,11 +16,6 @@ export default {
   experiments: {
     outputModule: true,
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      "process.env.PORT": JSON.stringify("4000"),
-    }),
-  ],
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "dist"),

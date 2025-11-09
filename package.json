@@ -5,11 +5,14 @@
   "main": "src/app.js",
   "type": "module",
   "scripts": {
-    "start": "node --experimental-modules dist/app.js",
-    "start:multi": "node --experimental-modules dist/cluster.js",
-    "start:db": "node --experimental-modules dist/db-server.js",
-    "test": "vitest run",
+    "start": "node dist/app.js",
+    "start:dev": "tsx watch src/app.ts",
+    "start:prod": "npm run build && node dist/app.js",
+    "start:multi": "node dist/cluster.js",
+    "start:db": "node dist/db-server.js",
+    "test": "vitest run --exclude src/cluster.test.ts",
     "test:cluster": "vitest run src/cluster.test.ts",
+    "test:all": "vitest run",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "prod": "tsc",
@@ -25,6 +28,9 @@
     "url": "https://github.com/freennnn/crud-api/issues"
   },
   "homepage": "https://github.com/freennnn/crud-api#readme",
+  "engines": {
+    "node": ">=24.10.0"
+  },
   "dependencies": {
     "dotenv": "^16.4.4",
     "uuid": "^9.0.1"
